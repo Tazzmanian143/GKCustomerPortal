@@ -1,25 +1,117 @@
-# Customer Portal API
+# GK Customer Portal API
 
-This repository contains the .NET Technical Assessment for a Customer Portal API. It features a RESTful architecture, CQRS/Service pattern implementation, SQLite integration, PII Data Encryption (AES-256), and Basic Authentication.
+This project is a .NET-based Customer Portal API developed as part of a Senior .NET Technical Assessment.  
+It demonstrates a clean, layered architecture with secure data handling, authentication, and full CRUD support.
 
-## How to Run Locally using Docker
+---
 
-1. Ensure you have Docker and Docker Desktop installed and running.
-2. Open a terminal and navigate to the root directory of this repository (where the `docker-compose.yml` file is located).
-3. Run the following command to build and start the containers:
-   ```bash
-   docker-compose up -d --build
-4. The API will now be accessible at http://localhost:8080.
+## Architecture
 
-API Documentation & Testing
-This API utilizes Swagger/OpenAPI for documentation and endpoint testing.
+The solution follows a layered architecture with clear separation of concerns:
 
-Once the application is running via Docker, navigate to http://localhost:8080/swagger in your web browser. (Note: If running directly via Visual Studio instead of Docker, check your launch console for the assigned localhost port).
+- **Controllers** – Handle HTTP requests and responses
+- **Services** – Contain business logic and validation
+- **Data Layer** – Handles database interactions via Entity Framework Core
+- **Authentication Layer** – Implements Basic Authentication using a custom handler
+- **Encryption Layer** – Handles AES-256 encryption for sensitive data
 
-Authentication: The API is secured with Basic Authentication. To test the endpoints, click the "Authorize" button in the top right corner of the Swagger UI.
+---
 
-Login Credentials: Enter the following seeded credentials to authenticate:
+## Key Features
 
-Username: admin@gk.com
+- Full CRUD operations for Customer entity
+- Pagination and optional filtering (First Name)
+- Secure Basic Authentication
+- PII Data Encryption (AES-256)
+- Input validation using Data Annotations
+- Global error handling and proper HTTP status codes
+- Swagger API documentation
+- Unit testing using xUnit and Moq
+- Containerized using Docker and Docker Compose
 
-Password: Password123!
+---
+
+## Tech Stack
+
+- .NET 10
+- ASP.NET Core Web API
+- Entity Framework Core (SQLite)
+- xUnit + Moq (Unit Testing)
+- Swagger / OpenAPI
+- Docker & Docker Compose
+- Microsoft Identity (for authentication)
+
+---
+
+## Requirements Mapping
+
+### ✔ Customer Entity
+- Id, FirstName, LastName, Email, Age implemented via `CustomerModel`
+
+### ✔ Data Access Layer
+- Implemented using `AppDbContext` and Entity Framework Core
+- SQLite used as the database
+
+### ✔ Service Layer
+- `CustomerService` handles:
+  - Business logic
+  - Validation
+  - CRUD operations
+
+### ✔ API Endpoints
+- `GET /api/customers` – Get all (with paging + filter)
+- `GET /api/customers/{id}` – Get by Id
+- `POST /api/customers` – Create
+- `PUT /api/customers/{id}` – Update
+- `DELETE /api/customers/{id}` – Delete
+
+### ✔ Validation & Error Handling
+- Data annotations + service-level validation
+- Proper HTTP responses:
+  - 200 OK
+  - 201 Created
+  - 204 No Content
+  - 400 Bad Request
+  - 404 Not Found
+
+### ✔ PII Encryption
+- AES-256 encryption applied via EF Core Value Converters
+- Fields encrypted at rest:
+  - FirstName
+  - LastName
+  - Email
+
+### ✔ Authentication
+
+- Custom Basic Authentication handler
+- Credentials validated against ASP.NET Identity store
+- API secured using `[Authorize]`
+
+**Login Credentials:**
+
+- Username: `admin@gk.com`  
+- Password: `Password123!`
+
+
+### ✔ Unit Testing
+- Implemented using **xUnit** and **Moq**
+- Tests cover:
+  - Controller logic
+  - Service interaction
+  - Success and failure scenarios
+
+---
+
+## How to Run Locally (Docker)
+
+### Prerequisites
+- Docker Desktop installed and running
+
+### Steps
+
+1. Clone the repository
+2. Navigate to the root directory
+3. Run:
+
+```bash
+docker-compose up -d --build
