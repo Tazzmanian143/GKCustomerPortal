@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  webapi:
+    image: gkcustomerportal-api
+    build:
+      context: ./GKCustomerPortal # Point this to the folder containing your Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    volumes:
+      - sqldata:/app/data # Mounts a volume so your SQLite DB survives container restarts
+
+volumes:
+  sqldata:

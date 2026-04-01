@@ -1,0 +1,210 @@
+﻿@page "/customers"
+@using GKCustomerPortal.Model
+@using GKCustomerPortal.Services
+@inject ICustomerService CustomerService
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+
+<div class="customer-container">
+    <h2 class="page-title">Customer Management</h2>
+
+    <div class="form-card search-card">
+        <div class="field-wrapper search-group">
+            <input type="text" class="custom-input" placeholder="Search by First Name..."
+                   @bind="searchTerm" @bind:event="oninput" @onkeyup="HandleSearch" />
+            <button class="btn-cancel" @onclick="ClearSearch">Clear</button>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <div class="form-header">Add New Customer</div>
+        <EditForm Model="@newCustomer" OnValidSubmit="AddCustomer">
+            <DataAnnotationsValidator />
+            
+            <div class="form-grid">
+                <div class="field-wrapper">
+                    <label>First Name</label>
+                    <InputText @bind-Value="newCustomer.FirstName" class="custom-input" placeholder="Jane" />
+                    <ValidationMessage For="@(() => newCustomer.FirstName)" class="validation-error" />
+                </div>
+
+                <div class="field-wrapper">
+                    <label>Last Name</label>
+                    <InputText @bind-Value="newCustomer.LastName" class="custom-input" placeholder="Doe" />
+                    <ValidationMessage For="@(() => newCustomer.LastName)" class="validation-error" />
+                </div>
+
+                <div class="field-wrapper">
+                    <label>Email</label>
+                    <InputText @bind-Value="newCustomer.Email" class="custom-input" placeholder="jane@example.com" />
+                    <ValidationMessage For="@(() => newCustomer.Email)" class="validation-error" />
+                </div>
+
+                <div class="field-wrapper">
+                    <label>Age</label>
+                    <InputNumber @bind-Value="newCustomer.Age" class="custom-input" />
+                    <ValidationMessage For="@(() => newCustomer.Age)" class="validation-error" />
+                </div>
+
+                <button type="submit" class="btn-add">Add Customer</button>
+            </div>
+        </EditForm>
+    </div>
+
+    <div class="table-container">
+        <table class="custom-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Age</th>
+                    <th style="text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (customers.Any())
+                {
+                    @foreach (var customer in customers)
+                    {
+                        @if (editingCustomerId == customer.Id)
+                        {
+                            <tr class="editing-row">
+                                <td>@customer.Id</td>
+                                <td><input class="custom-input" @bind="editingCustomer.FirstName" /></td>
+                                <td><input class="custom-input" @bind="editingCustomer.LastName" /></td>
+                                <td><input class="custom-input" @bind="editingCustomer.Email" /></td>
+                                <td><input type="number" class="custom-input" @bind="editingCustomer.Age" /></td>
+                                <td class="action-buttons">
+                                    <button class="btn-save" @onclick="SaveUpdate">Save</button>
+                                    <button class="btn-cancel" @onclick="CancelEdit">Cancel</button>
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            <tr>
+                                <td>@customer.Id</td>
+                                <td>@customer.FirstName</td>
+                                <td>@customer.LastName</td>
+                                <td>@customer.Email</td>
+                                <td>@customer.Age</td>
+                                <td class="action-buttons">
+                                    <button class="btn-edit" @onclick="() => StartEdit(customer)">Edit</button>
+                                    <button class="btn-delete" @onclick="() => DeleteCustomer(customer.Id)">Delete</button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: #999; padding: 2rem;">
+                            <em>No customers found.</em>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-controls" style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding: 10px; background-color: whitesmoke; border-radius: 8px;">
+        <button class="btn-cancel" @onclick="PreviousPage" disabled="@(currentPage <= 1)">Previous</button>
+        <span style="font-weight: bold;">Page @currentPage of @TotalPages</span>
+        <button class="btn-cancel" @onclick="NextPage" disabled="@(currentPage >= TotalPages || TotalPages == 0)">Next</button>
+    </div>
+</div>
+
+@code {
+    private List<CustomerModel> customers = new();
+    private CustomerModel newCustomer = new();    
+    private string? searchTerm;
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalCount = 0;
+    private int TotalPages => totalCount == 0 ? 1 : (int)Math.Ceiling((double)totalCount / pageSize);
+    private int? editingCustomerId;
+    private CustomerModel editingCustomer = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCustomers();
+    }
+
+    private async Task LoadCustomers()
+    {
+        var result = await CustomerService.GetAllAsync(searchTerm, currentPage, pageSize);
+        customers = result.Items.ToList();
+        totalCount = result.TotalCount;
+    }
+
+    private async Task HandleSearch()
+    {
+        currentPage = 1;
+        await LoadCustomers();
+    }
+
+    private async Task ClearSearch()
+    {
+        searchTerm = null;
+        currentPage = 1;
+        await LoadCustomers();
+    }
+
+    private async Task AddCustomer()
+    {
+        await CustomerService.CreateAsync(newCustomer);
+        newCustomer = new CustomerModel(); // Reset form
+        await LoadCustomers();
+    }
+
+    private void StartEdit(CustomerModel customer)
+    {
+        editingCustomerId = customer.Id;
+        editingCustomer = new CustomerModel
+        {
+            Id = customer.Id,
+            FirstName = customer.FirstName,
+            LastName = customer.LastName,
+            Email = customer.Email,
+            Age = customer.Age
+        };
+    }
+
+    private async Task SaveUpdate()
+    {
+        if (editingCustomerId.HasValue)
+        {
+            await CustomerService.UpdateAsync(editingCustomerId.Value, editingCustomer);
+            editingCustomerId = null;
+            await LoadCustomers();
+        }
+    }
+
+    private void CancelEdit() => editingCustomerId = null;
+
+    private async Task DeleteCustomer(int id)
+    {
+        await CustomerService.DeleteAsync(id);
+        await LoadCustomers();
+    }
+
+    private async Task NextPage()
+    {
+        if (currentPage < TotalPages)
+        {
+            currentPage++;
+            await LoadCustomers();
+        }
+    }
+
+    private async Task PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            await LoadCustomers();
+        }
+    }
+}

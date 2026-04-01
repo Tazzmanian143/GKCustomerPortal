@@ -1,0 +1,82 @@
+﻿.sign-in-container {
+    padding: 15px;
+    row-gap: 4px;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--deeper-blue);
+    align-content: center;
+    align-items: center;
+    position: relative;
+    margin-top: 20px;
+    justify-self: center;
+    width: 400px;
+    border-bottom-right-radius: 25px;
+}
+
+    .sign-in-container h3 {
+        font-weight: 600;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        color: var(--luminous-vivid-amber);
+    }
+
+.custom-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background-color: white;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-bottom: 10px;
+    width: 85%;
+    max-width: 85%;
+    transition: all 0.1s ease;
+    border: 1px solid #ccc;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+    .custom-input-wrapper:focus-within {
+        background-color: ghostwhite;
+        border: 1px solid var(--luminous-vivid-amber);
+    }
+
+.custom-input-icon {
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
+.custom-input-wrapper:focus-within .custom-input-icon {
+    opacity: 1;
+}
+
+.custom-input-wrapper.invalid {
+    border-color: #ff4d4d !important;
+    background-color: #fff2f2 !important;
+}
+
+    .custom-input-wrapper.invalid:focus-within {
+        border-color: #ff4d4d !important;
+    }
+
+::deep .custom-input-field {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 8px 0;
+    width: 100%;
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+}
+
+    ::deep .custom-input-field:focus {
+        background: transparent !important;
+    }
+
+.custom-input-wrapper.invalid {
+    border-color: #ff6b6b;
+}
+
+    .custom-input-wrapper.invalid:focus-within {
+        border-color: #ff6b6b;
+    }

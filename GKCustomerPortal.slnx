@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="GKCustomerPortal/GKCustomerPortal.csproj" />
+  <Project Path="GKCustomerPortals.Tests/GKCustomerPortals.Tests.csproj" Id="ec66905c-e0c6-44b8-b788-f8b5b70b766b" />
+</Solution>

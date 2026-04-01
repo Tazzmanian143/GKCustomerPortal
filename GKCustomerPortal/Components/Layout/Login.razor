@@ -1,0 +1,65 @@
+﻿@using GKCustomerPortal.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject Microsoft.AspNetCore.Identity.UserManager<Microsoft.AspNetCore.Identity.IdentityUser> UserManager
+@using Microsoft.FluentUI.AspNetCore.Components
+@inject AuthenticationStateProvider AuthStateProvider
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="sign-in-container" @onkeyup="HandleKeyUp">
+	<FluentIcon TValue="Icon" Value="@(new Icons.Regular.Size32.PersonAdd())" Color="@Color.Custom" CustomColor="antiquewhite" />
+	<h3>Sign In</h3>   
+	<div class="custom-input-wrapper" >
+		<FluentIcon Value="@(new Icons.Regular.Size32.Mail())"
+					Color="@Color.Neutral"
+					Width="18" Height="18"
+					class="custom-input-icon" />
+		<input @bind="email"
+			   placeholder="Email Address"
+			   class="custom-input-field" />
+	</div>
+
+	<div class="custom-input-wrapper">
+		<FluentIcon Value="@(new Icons.Regular.Size32.PersonPasskey())"
+					Color="@Color.Neutral"
+					Width="18" Height="18"
+					class="custom-input-icon" />
+		<input @bind="password"
+			   type="password"
+			   placeholder="Password"
+			   class="custom-input-field" />
+	</div>
+
+	<FluentButton Appearance="Appearance.Accent" OnClick="HandleLogin">Sign In</FluentButton>
+</div>
+
+@code {
+	private string email { get; set; } = "";
+	private string password { get; set; } = "";
+
+	private async Task HandleLogin()
+	{		
+		var user = await UserManager.FindByEmailAsync(email);
+
+		if (user != null)
+		{
+			// 2. Check if the password is correct
+			var isPasswordValid = await UserManager.CheckPasswordAsync(user, password);
+
+			if (isPasswordValid)
+			{
+				((SimpleAuthStateProvider)AuthStateProvider).MarkUserAsAuthenticated(email);
+				Navigation.NavigateTo("/customers");
+				return;
+			}
+		}		
+	}
+
+	private async Task HandleKeyUp(KeyboardEventArgs e)
+	{		
+		if (e.Key == "Enter")
+		{
+			await HandleLogin();
+		}		
+	}
+}
